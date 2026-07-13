@@ -14,13 +14,20 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<StockService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<CargoService>();
-builder.Services.AddScoped<OrderSagaService>(); 
+builder.Services.AddScoped<OrderSagaService>();
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
