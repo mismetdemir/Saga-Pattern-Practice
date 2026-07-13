@@ -43,9 +43,9 @@ namespace SagaPatternPractice.Services
             return !failed;
         }
 
-        public async Task RefundPaymentAsync(int orderId)
+        public async Task RefundPaymentAsync(int paymentId)
         {
-            var payment = await _context.Payments.FindAsync(orderId);
+            var payment = await _context.Payments.FindAsync(paymentId);
 
             if (payment == null) return;
 
