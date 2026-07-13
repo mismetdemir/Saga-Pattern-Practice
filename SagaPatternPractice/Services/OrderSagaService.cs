@@ -163,6 +163,8 @@ namespace SagaPatternPractice.Services
 
             order.Status = OrderStatus.Completed;
 
+            await _context.SaveChangesAsync();
+
             steps.Add("[EXIT] Order completed successfully (Order status = Complted)");
 
             return new SagaResponseDto
