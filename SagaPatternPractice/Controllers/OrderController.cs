@@ -18,8 +18,9 @@ namespace SagaPatternPractice.Controllers
         [HttpPost]
         public async Task<ActionResult<SagaResponseDto>> CreateOrder(
             OrderDto dto,
-            [FromQuery] bool paymentFail,
-            [FromQuery] bool cargoFail)
+            [FromQuery] bool paymentFail = false,
+            [FromQuery] bool cargoFail = false
+            )
         {
             var result = await _orderSagaService.CreateOrderAsync(dto.ProductId, dto.Quantity, paymentFail, cargoFail);
 
