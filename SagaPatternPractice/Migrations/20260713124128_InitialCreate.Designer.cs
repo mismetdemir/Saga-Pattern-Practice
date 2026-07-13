@@ -12,7 +12,7 @@ using SagaPatternPractice.Data;
 namespace SagaPatternPractice.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260713091206_InitialCreate")]
+    [Migration("20260713124128_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
