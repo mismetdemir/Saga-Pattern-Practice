@@ -9,5 +9,6 @@ namespace SagaPatternPractice.Models
         public int Quantity { get; set; }
         public decimal TotalPrice { get; set; }
         public OrderStatus Status { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }
