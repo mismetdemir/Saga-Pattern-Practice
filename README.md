@@ -107,3 +107,162 @@ Başarısız:
 4.  Sipariş iptal edildi.
 
 Adım 7) Kargo gönderildi. Sipariş tamamlandı.
+
+# Kod Açıklaması
+
+Projede sipariş oluşturma, stok ayırma, ödeme alma ve kargo hazırlama işlemleri uygulanır. Bir adım başarısız olduğunda daha önce tamamlanan işlemler telafi edilerek sipariş iptal edilir.
+
+## Saga Akışı
+
+Başarılı bir sipariş işlemi aşağıdaki sırayla ilerler:
+
+1. Ürün bulunur.
+2. Sipariş oluşturulur.
+3. Ürün stoğu ayrılır.
+4. Ödeme kaydı oluşturulur.
+5. Ödeme tamamlanır.
+6. Kargo hazırlanır.
+7. Sipariş tamamlanır.
+
+### Hata Durumları
+
+- **Stok yetersizse:** Sipariş iptal edilir.
+- **Ödeme başarısızsa:** Ayrılan stok geri eklenir ve sipariş iptal edilir.
+- **Kargo başarısızsa:** Ödeme iade edilir, stok geri eklenir ve sipariş iptal edilir.
+
+## Sınıflar
+
+### Program.cs
+
+Uygulamanın başlangıç dosyasıdır. Controller, veritabanı, Swagger ve servis bağımlılıklarını uygulamaya ekler.
+
+### Controllers
+
+#### ProductController
+
+Yeni ürün eklemek için kullanılan API endpoint'ini içerir.
+
+- `POST /api/Product`
+
+#### OrderController
+
+Yeni sipariş oluşturur ve işlemi `OrderSagaService` sınıfına gönderir. Ödeme ve kargo hataları query parametreleriyle test edilebilir.
+
+- `POST /api/Order`
+- `paymentFail=true`: Ödeme hatasını simüle eder.
+- `cargoFail=true`: Kargo hatasını simüle eder.
+
+### Data
+
+#### AppDbContext
+
+Entity Framework Core veritabanı bağlantısını yönetir. `Products`, `Orders` ve `Payments` tablolarını temsil eden `DbSet` özelliklerini içerir.
+
+### DTOs
+
+#### CreateProdcutDto
+
+Yeni ürün oluşturulurken alınan ürün adı, fiyat ve stok miktarı bilgilerini taşır. Alanların doğrulama kurallarını içerir.
+
+#### OrderDto
+
+Sipariş oluşturulurken alınan ürün numarası ve sipariş miktarını taşır.
+
+#### SagaResponseDto
+
+Saga işleminin sonucunu döndürür. İşlemin başarılı olup olmadığını, sipariş numarasını, son durumu ve gerçekleşen adımları içerir.
+
+### Models
+
+#### Product
+
+Ürün bilgilerini temsil eder. Ürün adı, fiyatı ve stok miktarını tutar.
+
+#### Order
+
+Sipariş bilgilerini temsil eder. Ürün numarası, miktar, toplam fiyat, sipariş durumu ve oluşturulma tarihini tutar.
+
+#### Payment
+
+Ödeme bilgilerini temsil eder. Sipariş numarası, ödeme tutarı, ödeme durumu ve oluşturulma tarihini tutar.
+
+### Enums
+
+#### OrderStatus
+
+Siparişin geçebileceği durumları tanımlar:
+
+- `Created`
+- `StockReserved`
+- `PaymentCompleted`
+- `CargoPrepared`
+- `Completed`
+- `Cancelled`
+
+#### PaymentStatus
+
+Ödemenin geçebileceği durumları tanımlar:
+
+- `Pending`
+- `Completed`
+- `Failed`
+- `Refunded`
+
+### Services
+
+#### StockService
+
+Ürün stoğunu kontrol eder. Sipariş sırasında stok miktarını azaltır, işlem iptal edilirse stoğu geri ekler.
+
+#### PaymentService
+
+Ödeme kaydı oluşturur, ödemeyi tamamlar veya başarısız olarak işaretler. Kargo işlemi başarısız olursa ödeme iadesini gerçekleştirir.
+
+#### CargoService
+
+Kargo hazırlama işlemini temsil eder. `cargoFail` değeriyle başarılı veya başarısız sonuç döndürür.
+
+#### OrderSagaService
+
+Projenin temel saga yöneticisidir. Sipariş, stok, ödeme ve kargo işlemlerini doğru sırayla çalıştırır. Herhangi bir adım başarısız olduğunda gerekli telafi işlemlerini uygular.
+
+## Veritabanını Oluşturma
+
+Proje klasöründe aşağıdaki komut çalıştırılır:
+
+```bash
+dotnet ef database update
+```
+
+Veritabanı bağlantısı `appsettings.json` dosyasındaki `DefaultConnection` alanında tanımlanmıştır.
+
+## Projeyi Çalıştırma
+
+```bash
+dotnet restore
+dotnet run
+```
+
+Swagger arayüzü geliştirme ortamında aşağıdaki adresten açılabilir:
+
+```text
+http://localhost:5142/swagger
+```
+
+Başarılı istek:
+
+```text
+POST /api/Order?paymentFail=false&cargoFail=false
+```
+
+Ödeme hatası testi:
+
+```text
+POST /api/Order?paymentFail=true&cargoFail=false
+```
+
+Kargo hatası testi:
+
+```text
+POST /api/Order?paymentFail=false&cargoFail=true
+```
