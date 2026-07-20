@@ -48,7 +48,7 @@ Burada dikkat etmeniz gereken bir nokta var: Eğer bu adımlardan herhangi biri 
 
 #### Bu süreci yönetmek için bir Saga pattern tasarlayın ve basit bir durum makinesi (state machine) diyagramı çizin. Sipariş Verildi aşamasından Sipariş Tamamlandı aşamasına kadar olan her bir durumu çizin ve her bir başarısızlık durumunda geri alma adımlarını gösterin.
 
-<img src="state_machine_diagram.png" style="width:6.3in;height:6.11667in" />
+<img src="state_machine_diagram.jpg"/>
 
 #### Her bir durumda, ilgili hizmetin başarılı ya da başarısız olması durumunda nasıl bir geçiş yapılacağını açıklayın.
 
